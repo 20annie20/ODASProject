@@ -18,13 +18,15 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
-    session.clear()
-    session['user_id'] = current_user.id
-    session.permanent = True
+
     name = request.form.get('name')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
     user = User.query.filter_by(name=name).first()
+
+    session.clear()
+    session['user_id'] = name
+    session.permanent = True
 
     if not user or not check_password_hash(user.password, password):
         flash('Błąd logowania. Proszę spróbować ponownie.')
