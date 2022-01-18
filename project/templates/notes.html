@@ -1,5 +1,52 @@
-{% extends "base.html" %}
-<div class
+{% extends 'base.html'%}
+{% block title %} Notes {% endblock %}
+{% block content%}
 <h1 class="title">
-  Zalogowano, {{ name }}!
+  Witaj, {{ name }}!
 </h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+{% if (notes is defined) and notes %} {% for note in notes %}
+<div class="card">
+  <div class="card-content">
+      <div class="content">
+          <span class="tag is-link is-normal">{{ note['email'] }}</span>
+          <form method="POST" action="/delete_note">
+              <input class="input is-large" type="text" name="title" value="{{ note['title'] }}">
+              <textarea class="textarea" name="text">{{ note['text'] }}</textarea>
+              <input type="hidden" name="note_id" value="{{ note['id'] }}"/>
+              <button class="button is-info">
+                Usuń notatkę
+              </button>
+              <button formaction="/edit_note" class="button is-info">
+                Edytuj notatkę
+              </button>
+              <div class="field is-horizontal">
+                  <div>
+                      <button formaction="/share_note" class="button is-info">
+                        Udostępnij dla
+                      </button>
+                  </div>
+                  <div class="field-body">
+                    <input class="input" type="text" name="share_user_name" placeholder="Nazwa użytkownika">
+                  </div>
+              </div>
+          </form>
+      </div>
+	</div>
+</div>
+{% endfor %}
+{% else %}
+<h4>Nie posiadasz jeszcze notatek</h4>
+{% endif %}
+<a href="/create_note" class="btn btn-primary">
+  <button class="button is-block is-info is-large is-fullwidth">
+    Dodaj notatkę
+  </button>
+</a>
+{% endblock %}
