@@ -15,15 +15,9 @@ def index():
 @main.route('/profile')
 @login_required
 def profile():
-    notes = Note.query.filter_by(user_id=current_user.id).all()
+    notes = Note.query.filter((Note.user_id == current_user.id) | Note.is_public).all()
 
     return render_template('profile.html', name=current_user.name, notes=notes)
-
-
-@main.route('/notes')
-@login_required
-def profile():
-    return render_template('notes.html', name=current_user.name)
 
 
 @main.route('/create_note')
@@ -35,8 +29,8 @@ def create_note():
 @main.route('/create_note', methods=['POST'])
 @login_required
 def create_note_post():
-    # is_public = True if request.form.get('is_public') else False
-    # is_encrypted = True if request.form.get('is_encrypted') else False
+    is_public = True if request.form.get('note_type') == 'public' else False
+    is_encrypted = True if request.form.get('note_type') == 'encrypted' else False
     # encryption_key = request.form.get('encryption_key')
     text = request.form.get('text')
     user_id = current_user.id
@@ -53,8 +47,8 @@ def create_note_post():
     #     pass
 
     new_note = Note(user_id=user_id,
-                    is_public=False,
-                    is_encrypted=False,
+                    is_public=is_public,
+                    is_encrypted=is_encrypted,
                     encryption_key_hash='',
                     text=text)
 
@@ -64,3 +58,28 @@ def create_note_post():
     return redirect(url_for('main.profile'))
 
 
+@main.route('/delete_note', methods=['POST'])
+@login_required
+def delete_note_post():
+    note_id = request.form.get('note_id')
+
+    note = Note.query.filter_by(id=note_id).first()
+    if note:
+        db.session.delete(note)
+        db.session.commit()
+
+    return redirect(url_for('main.profile'))
+
+
+@main.route('/edit_note', methods=['POST'])
+@login_required
+def edit_note_post():
+    note_id = request.form.get('note_id')
+    text = request.form.get('text')
+
+    note = Note.query.filter_by(id=note_id).first()
+    if note:
+        note.text = text
+        db.session.commit()
+
+    return redirect(url_for('main.profile'))

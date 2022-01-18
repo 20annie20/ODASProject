@@ -16,8 +16,8 @@ db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
+    # TODO: Add HTTPS config
     app.config.from_object('config.Config')
-
     db.init_app(app)
 
     login_manager = LoginManager()
