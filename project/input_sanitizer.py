@@ -9,5 +9,6 @@ def is_lowercase_only(s):
 def validate_name(name):
     if 0 < len(name) <= 100:
         if is_lowercase_only(name):
+            print("Ok")
             return name
     return None

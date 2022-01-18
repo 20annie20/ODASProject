@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from .input_sanitizer import validate_name
 from .models import User
+from flask_login import login_user, login_required, logout_user
 
 auth = Blueprint('auth', __name__)
 
@@ -11,6 +12,22 @@ auth = Blueprint('auth', __name__)
 @auth.route('/login')
 def login():
     return render_template('login.html')
+
+
+@auth.route('/login', methods=['POST'])
+def login_post():
+    name = request.form.get('name')
+    print(name)
+    password = request.form.get('password')
+    remember = True if request.form.get('remember') else False
+    user = User.query.filter_by(name=name).first()
+
+    if not user or not check_password_hash(user.password, password):
+        flash('Błąd logowania. Proszę spróbować ponownie.')
+        return redirect(url_for('auth.login'))
+
+    login_user(user, remember=remember)
+    return redirect(url_for('main.profile'))
 
 
 @auth.route('/signup')
@@ -42,5 +59,7 @@ def signup_post():
 
 
 @auth.route('/logout')
+@login_required
 def logout():
-    return 'Logout'
+    logout_user()
+    return redirect(url_for('main.index'))
