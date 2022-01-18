@@ -12,6 +12,7 @@ class Config:
     TEMPLATES_FOLDER = 'templates'
     SQLALCHEMY_DATABASE_URI = environ.get('SQLALCHEMY_DATABASE_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    PERMANENT_SESSION_LIFETIME = 600
     FLASK_ENV = 'development'
     DEBUG = True
     TESTING = True

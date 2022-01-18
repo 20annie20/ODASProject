@@ -1,10 +1,12 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from datetime import datetime
+
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import db
 from .input_sanitizer import validate_name
 from .models import User
-from flask_login import login_user, login_required, logout_user
+from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint('auth', __name__)
 
@@ -16,8 +18,10 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
+    session.clear()
+    session['user_id'] = current_user.id
+    session.permanent = True
     name = request.form.get('name')
-    print(name)
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
     user = User.query.filter_by(name=name).first()
@@ -49,9 +53,12 @@ def signup_post():
     if user:
         flash("Użytkownik o wskazanej nazwie już istnieje.")
         return redirect(url_for('auth.signup'))
-
+    # test odporności funkcji generate_... na atak czasowy
+    start = datetime.now()
     new_user = User(name=name, password=generate_password_hash(password, method='sha256', salt_length=16))
+    print(datetime.now()-start)
 
+    # TODO check for possible DDoS attack - for i in some random_names'; curl na POST signupowy
     db.session.add(new_user)
     db.session.commit()
 
