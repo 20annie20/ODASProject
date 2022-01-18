@@ -1,43 +1,30 @@
 {% extends 'base.html'%}
 {% block title %} Add note {% endblock %}
 {% block content %}
-<div class="container mt-5 mb-5 px-10 ">
-	<div class="row">
-		<div class="col-md-6 offset-md-3">
-			<form method="POST" action="/create-note">
-				<div class="form-group">
-					<label for="title">Tytuł</label>
-					<input
-						type="text"
-						class="form-control"
-						id="title"
-						aria-describedby="noteTitle"
-						placeholder="Enter note title"
-						name="title"
-						required
-					/>
-					<small id="noteTitle" class="form-text text-muted"
-						>Np. Ala ma kota.</small
-					>
-				</div>
-				<div class="form-group">
-					<label for="description">Opis</label>
-					<textarea
-						id="description"
-						name="description"
-						class="form-control"
-						placeholder="Some description"
-						aria-describedby="description"
-						required
-					>
-					</textarea>
-					<small id="description" class="form-text text-muted"
-						>np. Ala ma brązowego, puszystego kota.</small
-					>
-				</div>
-				<button type="submit" class="btn btn-primary">Prześlij</button>
-			</form>
-		</div>
-	</div>
+<div class="column is-4 is-offset-4">
+    <div class="box">
+        <form method="POST" action="/create_note">
+            <div class="field">
+                <div class="control">
+                    <textarea class="textarea" name="text" placeholder="Your note..."></textarea>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="radio">
+                    <input type="radio" id="public" name="note_type" value="public">
+                    Public
+                </label>
+            </div>
+            <div class="field">
+                <label class="radio">
+                    <input type="radio" id="encrypted" name="note_type" value="encrypted">
+                    Encrypted
+                </label>
+            </div>
+
+            <button class="button is-block is-info is-large is-fullwidth">Create note</button>
+        </form>
+    </div>
 </div>
-{% endblock %} 
+{% endblock %}
