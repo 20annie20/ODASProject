@@ -82,7 +82,7 @@ def create_note_post():
 @login_required
 def delete_note_post():
     note_id = request.form.get('note_id')
-
+    text = request.form.get('text')
     note = Note.query.filter_by(id=note_id).first()
     if note:
         db.session.delete(note)
@@ -110,6 +110,7 @@ def update_note_post():
 def edit_note_post():
     note_id = request.form.get('note_id')
     note = Note.query.filter_by(id=note_id).first()
+    note.text = display_text(note.text)
     return render_template('update_note.html', note=note)
 
 
