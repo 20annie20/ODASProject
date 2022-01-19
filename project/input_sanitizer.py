@@ -1,6 +1,8 @@
 # nazwa użytkownika może składać się wyłącznie z małych liter a-z, powinna być napisem o długości od 1 do 100 znaków
 import re
 
+import flask
+
 
 class NameStatus:
     INVALID_NAME = 0
@@ -30,3 +32,11 @@ def validate_password(password):
     if 5 < len(password) < 100 and any(map(str.isdigit, password)) and any(map(str.islower, password)) and any(map(str.isupper, password)):
         return PasswordStatus.PROPER_PASSWORD
     return PasswordStatus.INVALID_PASSWORD
+
+
+def sanitize_text(input_text):
+    return flask.Markup.escape(input_text)
+
+
+def display_text(markup_text):
+    return flask.Markup.unescape(markup_text)

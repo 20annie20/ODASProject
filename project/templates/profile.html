@@ -4,6 +4,13 @@
 <h1 class="title">
   Witaj, {{ name }}!
 </h1>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
 {% if (notes is defined) and notes %} {% for note in notes %}
 <div class="card">
   <div class="card-content">
@@ -18,6 +25,16 @@
                 <button formaction="/edit_note" class="button is-info">
                     Edytuj notatkę
                 </button>
+                <div class="field is-horizontal">
+                  <div>
+                      <button formaction="/share_note" class="button is-info">
+                        Udostępnij
+                      </button>
+                  </div>
+                  <div class="field-body">
+                    <input class="input" type="text" name="share_user_name" placeholder="Nazwa użytkownika, któremu chcesz udostępnić notatkę">
+                  </div>
+                </div>
             </form>
       </div>
 	</div>
