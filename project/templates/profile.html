@@ -2,11 +2,13 @@
 {% block title %} Profile {% endblock %}
 {% block content%}
 <h1 class="title">
-  Welcome, {{ name }}!
+  Witaj, {{ name }}!
 </h1>
-<div class="column is-4 is-offset-4">
-    <div class="box">
-		{% if (notes is defined) and notes %} {% for note in notes %}
+{% if (notes is defined) and notes %} {% for note in notes %}
+<div class="card">
+  <div class="card-content">
+      <div class="content">
+          <span class="tag is-link is-normal">{{ note['name'] }}</span>
             <form method="POST" action="/delete_note">
                 <textarea class="textarea" name="text">{{ note['text'] }}</textarea>
                 <input type="hidden" name="note_id" value="{{ note['id'] }}"/>
@@ -17,15 +19,16 @@
                     Edytuj notatkę
                 </button>
             </form>
-		{% endfor %}
-        {% else %}
-			<h4>Nie masz jeszcze notatek</h4>
-		{% endif %}
-        <a href="/create_note" class="btn btn-primary">
-            <button class="button is-block is-info is-large is-fullwidth">
-                Dodaj notatkę
-            </button>
-        </a>
+      </div>
 	</div>
 </div>
+{% endfor %}
+{% else %}
+<h4>Nie masz jeszcze notatek</h4>
+{% endif %}
+<a href="/create_note" class="btn btn-primary">
+  <button class="button is-block is-info is-large is-fullwidth">
+    Dodaj notatkę
+  </button>
+</a>
 {% endblock %}

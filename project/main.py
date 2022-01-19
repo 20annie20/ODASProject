@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash
-from .models import Note
+from .models import Note, User
 from . import db
 
 main = Blueprint('main', __name__)
@@ -15,7 +15,11 @@ def index():
 @main.route('/profile')
 @login_required
 def profile():
-    notes = Note.query.filter((Note.user_id == current_user.id) | Note.is_public).all()
+    notes = Note.query \
+        .join(User, User.id == Note.user_id) \
+        .add_columns(User.name, Note.id, Note.text) \
+        .filter((Note.user_id == current_user.id) | Note.is_public) \
+        .all()
 
     return render_template('profile.html', name=current_user.name, notes=notes)
 
