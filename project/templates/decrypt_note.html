@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Odszyfrowana notatka</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="card-content">
+                <div class="content">
+                    <blockquote>{{ messages[0] }}</blockquote>
+                </div>
+            </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}

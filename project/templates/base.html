@@ -21,9 +21,11 @@
                                 Strona główna
                             </a>
                             {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('main.profile') }}" class="navbar-item">
-                                Profil
+                            <a href="{{ url_for('main.notes') }}" class="navbar-item">
+                                Notatki
                             </a>
+                            <a href="{{ url_for('main.encrypted_notes') }}" class="navbar-item">
+                                Notatki zaszyfrowane
                             {% endif %}
                             {% if not current_user.is_authenticated %}
                             <a href="{{ url_for('auth.login') }}" class="navbar-item">

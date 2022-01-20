@@ -1,0 +1,30 @@
+{% extends 'base.html'%}
+{% block title %} Dodaj zaszyfrowaną notatkę {% endblock %}
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <div class="box">
+        <form method="POST" action="/create_encrypted_note">
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="text" name="title" placeholder="Tytuł..." autofocus="">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <textarea class="textarea" name="text" placeholder="Twoja notatka..."></textarea>
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="control">
+                    <input class="input is-large" type="password"  name="encryption_password" placeholder="Hasło...">
+                </label>
+            </div>
+
+            <button class="button is-block is-info is-large is-fullwidth">Stwórz zaszyfrowaną notatkę</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

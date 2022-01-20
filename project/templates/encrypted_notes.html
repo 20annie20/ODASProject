@@ -1,5 +1,5 @@
 {% extends 'base.html'%}
-{% block title %} Notatki {% endblock %}
+{% block title %} Encrypted Notes {% endblock %}
 {% block content%}
 <h1 class="title">
   Witaj, {{ name }}!
@@ -17,34 +17,30 @@
       <div class="content">
           <span class="tag is-link is-normal">{{ note['email'] }}</span>
           <form method="POST" action="/delete_note">
-              <input class="input is-large" type="text" name="title" value="{{ note['title'] }}">
-              <textarea class="textarea" name="text">{{ note['text'] }}</textarea>
+              <input class="input is-large" type="text" name="title" value="{{ note['title'] }}" readonly>
               <input type="hidden" name="note_id" value="{{ note['id'] }}"/>
               <button class="button is-info">
                 Usuń notatkę
               </button>
-              <button formaction="/edit_note" class="button is-info">
-                Edytuj notatkę
-              </button>
               <div class="field is-horizontal">
                   <div>
-                      <button formaction="/share_note" class="button is-info">
-                        Udostępnij dla
+                      <button formaction="/decrypt_note" class="button is-info">
+                        Odszyfruj notatkę
                       </button>
                   </div>
                   <div class="field-body">
-                    <input class="input" type="text" name="share_user_name" placeholder="Nazwa użytkownika">
+                    <input class="input" type="password" name="encryption_password" placeholder="Hasło...">
                   </div>
               </div>
           </form>
       </div>
-	</div>
+  </div>
 </div>
 {% endfor %}
 {% else %}
 <h4>Nie posiadasz jeszcze notatek</h4>
 {% endif %}
-<a href="/create_note" class="btn btn-primary">
+<a href="/create_encrypted_note" class="btn btn-primary">
   <button class="button is-block is-info is-large is-fullwidth">
     Dodaj notatkę
   </button>

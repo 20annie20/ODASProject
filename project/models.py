@@ -14,6 +14,7 @@ class Note(db.Model):
     is_public = db.Column(db.Boolean)
     is_encrypted = db.Column(db.Boolean)
     encryption_key_hash = db.Column(db.String(100))
+    title = db.Column(db.String(100))
     text = db.Column(db.String(1000))
 
 
