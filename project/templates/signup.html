@@ -8,7 +8,7 @@
     {% with messages = get_flashed_messages() %}
     {% if messages %}
         <div class="notification is-danger">
-            {{ messages[0] }}. Przejdź do <a href="{{ url_for('auth.login') }}">logowania</a>.
+            {{ messages[0] }}
         </div>
     {% endif %}
     {% endwith %}
@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <button class="button is-block is-info is-large is-fullwidth">Zaloguj się</button>
+            <button class="button is-block is-info is-large is-fullwidth">Zarejestruj się</button>
         </form>
     </div>
 </div>

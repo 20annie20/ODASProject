@@ -1,3 +1,5 @@
+from sqlalchemy import func
+
 from project import db
 from flask_login import UserMixin
 
@@ -26,5 +28,8 @@ class Share(db.Model):
 
 class Login(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime(timezone=True), server_default=func.now())
     user_id = db.Column(db.Integer)
-    date = db.Column(db.Date)
+    was_successful = db.Column(db.Boolean)
+    gets_blocked = db.Column(db.Boolean)
+
