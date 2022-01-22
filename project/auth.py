@@ -1,12 +1,27 @@
+from multiprocessing import Process
+import time
+from multiprocessing.pool import ThreadPool
+from threading import Thread
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from . import db
 from .input_sanitizer import validate_name, validate_password
-from .models import User
+from .models import User, Login
 from flask_login import login_user, login_required, logout_user, current_user
 
 auth = Blueprint('auth', __name__)
+results = ''
+
+
+def get_attempts(user):
+    logins = Login.query.filter_by(user_id=user.user_id).all()
+    return False
+
+
+def later_function():
+    time.sleep(0.5)
 
 
 @auth.route('/login')
@@ -19,18 +34,22 @@ def login_post():
 
     name = request.form.get('name')
     password = request.form.get('password')
-    remember = True if request.form.get('remember') else False
     user = User.query.filter_by(name=name).first()
-
     session.clear()
-    session['user_id'] = name
-    session.permanent = True
+    pool = ThreadPool(processes=1)
+    pool.apply(later_function)
 
     if not user or not check_password_hash(user.password, password):
-        flash('Błąd logowania. Proszę spróbować ponownie.')
-        return redirect(url_for('auth.login'))
+        if get_attempts(user) >= 3:
+            flash('Przekroczono limit nieudanych prób zalogowania. Proszę spróbować ponownie za minutę.')
+            return redirect(url_for('auth.login'))
+        else:
+            flash('Błąd logowania. Proszę spróbować ponownie.')
+            return redirect(url_for('auth.login'))
 
-    login_user(user, remember=remember)
+    login_user(user)
+    session['user_id'] = name
+    session.permanent = True
     return redirect(url_for('main.notes'))
 
 
@@ -39,7 +58,6 @@ def signup():
     return render_template('signup.html')
 
 
-# kiedy na endpoint przychodzi POST
 @auth.route('/signup', methods=['POST'])
 def signup_post():
     name = (request.form.get('name'))

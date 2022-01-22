@@ -22,3 +22,9 @@ class Share(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer)
     note_id = db.Column(db.Integer)
+
+
+class Login(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    date = db.Column(db.Date)
