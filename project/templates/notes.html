@@ -15,9 +15,9 @@
 <div class="card">
   <div class="card-content">
       <div class="content">
-          <span class="tag is-link is-normal">{{ note['email'] }}</span>
+          <span class="tag is-link is-normal">{{ note['name'] }}</span>
           <form method="POST" action="/delete_note">
-              <input class="input is-large" type="text" name="title" value="{{ note['title'] }}">
+              <input class="input is-large" type="text" name="title" value="{{ note['title'] }}" readonly>
               <textarea class="textarea" name="text">{{ note['text'] }}</textarea>
               <input type="hidden" name="note_id" value="{{ note['id'] }}"/>
               <button class="button is-info">
