@@ -23,6 +23,7 @@ def notes():
         .join(User, User.id == Note.user_id) \
         .add_columns(User.name, Note.id, Note.title, Note.text)\
         .filter((Note.user_id == current_user.id) | Note.is_public) \
+        .filter(Note.is_encrypted == 0) \
         .all()
 
     shared_target_user_table = aliased(User)
