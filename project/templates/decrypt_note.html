@@ -8,7 +8,7 @@
         {% if messages %}
             <div class="card-content">
                 <div class="content">
-                    <blockquote>{{ messages[0] }}</blockquote>
+                    <blockquote>{{ messages[0] | safe }}</blockquote>
                 </div>
                 <form method="POST" action="/delete_encrypted_note">
                     <input type="hidden" name="note_id" value="{{ note_id }}"/>
@@ -18,6 +18,11 @@
                         </button>
                     </div>
                 </form>
+                <a href="/encrypted_notes" class="btn btn-primary">
+                    <button class="button is-success is-large is-fullwidth">
+                        Powrót
+                    </button>
+                </a>
             </div>
         {% endif %}
         {% endwith %}

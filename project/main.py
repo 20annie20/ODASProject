@@ -2,12 +2,13 @@ import flask
 import markdown
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
 
+from encryption import encrypt_text, decrypt_text, check_password
 from .input_sanitizer import sanitize_text
 from .models import Note, User, Share
 from . import db
 from sqlalchemy.orm import aliased
+
 
 main = Blueprint('main', __name__)
 
@@ -98,23 +99,12 @@ def create_encrypted_note_post():
     text = markdown.markdown(sanitize_text(text))
     user_id = current_user.id
     password = request.form.get('encryption_password')
-
-    # double hashed password - to verify if key is correct
-    # single hashed password - to be real encryption key
-    # encryption_key_hash = '' if not is_encrypted else generate_password_hash(encryption_key, method='sha256')
-    # encryption_key_double_hash = '' if not is_encrypted else generate_password_hash(encryption_key_hash,
-
-    hashed_password = generate_password_hash(password, method='sha256')
-
-    # TODO: add encryption
-    encrypted_text = text
-
-    #double_hashed_password = generate_password_hash(single_hashed_password, method='sha256')
-
+    encrypted_text, hashed_key, salt = encrypt_text(text, password)
     new_encrypted_note = Note(user_id=user_id,
                               is_public=False,
                               is_encrypted=True,
-                              encryption_key_hash=hashed_password,
+                              encryption_key_hash=hashed_key,
+                              salt=salt,
                               title=title,
                               text=encrypted_text)
     db.session.add(new_encrypted_note)
@@ -123,22 +113,20 @@ def create_encrypted_note_post():
     return redirect(url_for('main.encrypted_notes'))
 
 
-
-
 @main.route('/decrypt_note', methods=['POST'])
 @login_required
 def decrypt_note_post():
     note_id = request.form.get('note_id')
     password = request.form.get('encryption_password')
-
     note = Note.query.filter_by(id=note_id).first()
     if note and note.is_encrypted:
-
-        if not check_password_hash(note.encryption_key_hash, password):  # password is wrong
+        if not check_password(note.encryption_key_hash, note.salt, password):  # password is wrong
             flash('Nieprawidłowe hasło!')
             return redirect(url_for('main.encrypted_notes'))
-
-        decrypted_text = markdown.markdown(note.text)
+        cipher_text = note.text
+        salt = note.salt
+        text = decrypt_text(cipher_text, salt, password)
+        decrypted_text = markdown.markdown(text)
 
         flash(decrypted_text)
         return render_template('decrypt_note.html', note_id=note_id)
@@ -164,7 +152,6 @@ def delete_encrypted_note_post():
 @login_required
 def delete_note_post():
     note_id = request.form.get('note_id')
-    print(note_id)
     note = Note.query.filter_by(id=note_id).first()
     if note:
         db.session.delete(note)
