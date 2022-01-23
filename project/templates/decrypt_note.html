@@ -10,6 +10,14 @@
                 <div class="content">
                     <blockquote>{{ messages[0] }}</blockquote>
                 </div>
+                <form method="POST" action="/delete_encrypted_note">
+                    <input type="hidden" name="note_id" value="{{ note_id }}"/>
+                    <div class="field is-horizontal">
+                        <button formaction="/delete_encrypted_note" class="button is-danger">
+                            Usuń notatkę
+                        </button>
+                    </div>
+                </form>
             </div>
         {% endif %}
         {% endwith %}

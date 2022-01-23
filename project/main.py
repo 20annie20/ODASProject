@@ -1,9 +1,10 @@
 import flask
+import markdown
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .input_sanitizer import sanitize_text, display_text
+from .input_sanitizer import sanitize_text
 from .models import Note, User, Share
 from . import db
 from sqlalchemy.orm import aliased
@@ -37,22 +38,10 @@ def notes():
     notes_list = list()
     for note in notes + shared_notes:
         note = dict(note)
-        note['text'] = display_text(note['text'])
+        note['text'] = markdown.markdown(note['text'])
         notes_list.append(note)
 
     return render_template('notes.html', name=current_user.name, notes=notes_list)
-
-
-@main.route('/encrypted_notes')
-@login_required
-def encrypted_notes():
-    notes = Note.query \
-        .join(User, User.id == Note.user_id) \
-        .add_columns(User.name, Note.id, Note.title) \
-        .filter((Note.user_id == current_user.id) & Note.is_encrypted) \
-        .all()
-
-    return render_template('encrypted_notes.html', name=current_user.name, notes=notes)
 
 
 @main.route('/create_note')
@@ -83,6 +72,18 @@ def create_note_post():
     return redirect(url_for('main.notes'))
 
 
+@main.route('/encrypted_notes')
+@login_required
+def encrypted_notes():
+    notes = Note.query \
+        .join(User, User.id == Note.user_id) \
+        .add_columns(User.name, Note.id, Note.title) \
+        .filter((Note.user_id == current_user.id) & Note.is_encrypted) \
+        .all()
+
+    return render_template('encrypted_notes.html', name=current_user.name, notes=notes)
+
+
 @main.route('/create_encrypted_note')
 @login_required
 def create_encrypted_note():
@@ -94,10 +95,9 @@ def create_encrypted_note():
 def create_encrypted_note_post():
     title = request.form.get('title')
     text = request.form.get('text')
+    text = markdown.markdown(sanitize_text(text))
     user_id = current_user.id
     password = request.form.get('encryption_password')
-
-    # TODO: validate password requirements (force strong password)
 
     # double hashed password - to verify if key is correct
     # single hashed password - to be real encryption key
@@ -123,10 +123,6 @@ def create_encrypted_note_post():
     return redirect(url_for('main.encrypted_notes'))
 
 
-@main.route('/decrypt_note')
-@login_required
-def decrypt_note():
-    return render_template('decrypt_note.html')
 
 
 @main.route('/decrypt_note', methods=['POST'])
@@ -142,21 +138,33 @@ def decrypt_note_post():
             flash('Nieprawidłowe hasło!')
             return redirect(url_for('main.encrypted_notes'))
 
-        decrypted_text = note.text
+        decrypted_text = markdown.markdown(note.text)
 
         flash(decrypted_text)
-        return redirect(url_for('main.decrypt_note'))
+        return render_template('decrypt_note.html', note_id=note_id)
 
     else:
         flash('Nie znaleziono notatki')
         return redirect(url_for('main.encrypted_notes'))
 
 
+@main.route('/delete_encrypted_note', methods=['POST'])
+@login_required
+def delete_encrypted_note_post():
+    note_id = request.form.get('note_id')
+    note = Note.query.filter_by(id=note_id).first()
+    if note:
+        db.session.delete(note)
+        db.session.commit()
+
+    return redirect(url_for('main.encrypted_notes'))
+
+
 @main.route('/delete_note', methods=['POST'])
 @login_required
 def delete_note_post():
     note_id = request.form.get('note_id')
-    text = request.form.get('text')
+    print(note_id)
     note = Note.query.filter_by(id=note_id).first()
     if note:
         db.session.delete(note)
@@ -168,7 +176,6 @@ def delete_note_post():
 @main.route('/update_note', methods=['POST'])
 @login_required
 def update_note_post():
-    # TODO get the original text of the note
     note_id = request.form.get('note_id')
     text = request.form.get('text')
     note = Note.query.filter_by(id=note_id).first()
@@ -184,7 +191,7 @@ def update_note_post():
 def edit_note_post():
     note_id = request.form.get('note_id')
     note = Note.query.filter_by(id=note_id).first()
-    note.text = display_text(note.text)
+    note.text = note.text
     return render_template('update_note.html', note=note)
 
 

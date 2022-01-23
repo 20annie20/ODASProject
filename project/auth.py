@@ -1,8 +1,6 @@
 import datetime
-from multiprocessing import Process
 import time
 from multiprocessing.pool import ThreadPool
-from threading import Thread
 
 from flask import Blueprint, render_template, redirect, url_for, request, flash, session
 from sqlalchemy import desc
@@ -11,7 +9,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from .input_sanitizer import validate_name, validate_password
 from .models import User, Login
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_login import login_user, login_required, logout_user
 
 auth = Blueprint('auth', __name__)
 results = ''
@@ -59,7 +57,7 @@ def login_post():
     pool.apply(later_function)
 
     if not user:
-        flash('Podany użytkownik nie istnieje. Proszę się zarejestrować.')
+        flash('Błąd logowania. Proszę spróbować ponownie.')
         return redirect(url_for('auth.login'))
     elif is_blocked(user):
         flash('Trwa blokada.')
@@ -82,7 +80,6 @@ def login_post():
     login_user(user)
     session['user_id'] = name
     session.permanent = True
-    print("Udana próba zalogowania")
     login_attempt = Login(user_id=user.id,
                           was_successful=True,
                           gets_blocked=False)

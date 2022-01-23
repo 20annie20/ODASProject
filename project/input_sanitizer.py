@@ -36,7 +36,3 @@ def validate_password(password):
 
 def sanitize_text(input_text):
     return flask.Markup.escape(input_text)
-
-
-def display_text(markup_text):
-    return flask.Markup.unescape(markup_text)
