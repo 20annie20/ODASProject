@@ -1,11 +1,13 @@
+from datetime import datetime, timedelta
+
 import flask
 import markdown
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 
 from encryption import encrypt_text, decrypt_text, check_password
-from .input_sanitizer import sanitize_text
-from .models import Note, User, Share
+from .input_sanitizer import sanitize_text, display_text
+from .models import Note, User, Share, Login
 from . import db
 from sqlalchemy.orm import aliased
 
@@ -21,6 +23,12 @@ def index():
 @main.route('/notes')
 @login_required
 def notes():
+    hour_ago = datetime.utcnow() - timedelta(hours=1)
+    last_logins = Login.query.filter(Login.user_id == current_user.id).filter(Login.date > hour_ago).limit(5)
+    for login in last_logins:
+        log = f"Attempted login at: {login.date} from: {login.ip}. Was it successful: {login.was_successful}."
+        flash(log)
+
     notes = Note.query \
         .join(User, User.id == Note.user_id) \
         .add_columns(User.name, Note.id, Note.title, Note.text)\
@@ -58,6 +66,7 @@ def create_note_post():
     is_encrypted = True if request.form.get('note_type') == 'encrypted' else False
     title = request.form.get('title')
     text = request.form.get('text')
+    print(text)
     user_id = current_user.id
 
     new_note = Note(user_id=user_id,
@@ -178,7 +187,7 @@ def update_note_post():
 def edit_note_post():
     note_id = request.form.get('note_id')
     note = Note.query.filter_by(id=note_id).first()
-    note.text = note.text
+    note.text = display_text(note.text)
     return render_template('update_note.html', note=note)
 
 

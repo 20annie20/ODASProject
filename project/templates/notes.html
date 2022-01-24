@@ -6,9 +6,11 @@
 </h1>
 {% with messages = get_flashed_messages() %}
 {% if messages %}
-    <div class="notification is-danger">
-        {{ messages[0] }}
-    </div>
+    {% for message in messages %}
+        <div class="notification is-danger">
+            {{ message }}
+        </div>
+    {% endfor %}
 {% endif %}
 {% endwith %}
 {% if (notes is defined) and notes %} {% for note in notes %}

@@ -31,6 +31,7 @@ class Login(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), server_default=func.now())
     user_id = db.Column(db.Integer)
+    ip = db.Column(db.String(16))
     was_successful = db.Column(db.Boolean)
     gets_blocked = db.Column(db.Boolean)
 

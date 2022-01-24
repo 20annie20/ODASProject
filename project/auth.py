@@ -23,7 +23,6 @@ def get_failed_attempts_from_last_minute(user):
     for log in logins_from_last_minute:
         if not log.was_successful:
             attempts += 1
-    print(attempts)
     return attempts
 
 
@@ -49,6 +48,7 @@ def login():
 
 @auth.route('/login', methods=['POST'])
 def login_post():
+    ip = request.remote_addr
     name = request.form.get('name')
     password = request.form.get('password')
     user = User.query.filter_by(name=name).first()
@@ -65,14 +65,14 @@ def login_post():
 
     elif get_failed_attempts_from_last_minute(user) >= 3:
         flash('Przekroczono limit nieudanych prób zalogowania. Proszę spróbować ponownie za minutę.')
-        login_attempt = Login(user_id=user.id, was_successful=False, gets_blocked=True)
+        login_attempt = Login(user_id=user.id, ip=ip, was_successful=False, gets_blocked=True)
         db.session.add(login_attempt)
         db.session.commit()
         return redirect(url_for('auth.login'))
 
     elif not check_password_hash(user.password, password):
         flash('Błąd logowania. Proszę spróbować ponownie.')
-        login_attempt = Login(user_id=user.id, was_successful=False, gets_blocked=False)
+        login_attempt = Login(user_id=user.id, ip=ip, was_successful=False, gets_blocked=False)
         db.session.add(login_attempt)
         db.session.commit()
         return redirect(url_for('auth.login'))
@@ -80,9 +80,10 @@ def login_post():
     login_user(user)
     session['user_id'] = name
     session.permanent = True
-    login_attempt = Login(user_id=user.id,
+    login_attempt = Login(user_id=user.id, ip=ip,
                           was_successful=True,
-                          gets_blocked=False)
+                          gets_blocked=False,
+                          )
     db.session.add(login_attempt)
     db.session.commit()
     return redirect(url_for('main.notes'))
